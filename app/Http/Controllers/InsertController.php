@@ -154,6 +154,8 @@ class InsertController extends Controller {
       $string = '';
       foreach($data as $key => $value)
       {
+         if($key == 'created_at' || $key == 'updated_at') continue;
+
          $string .= $value;
       }
 
