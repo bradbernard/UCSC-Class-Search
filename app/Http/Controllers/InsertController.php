@@ -151,7 +151,13 @@ class InsertController extends Controller {
 
    private function getHash($data)
    {
-      return sha1('UCSC_CLASS_SEARCH' . $data['term_id'] . $data['class_number'] . $data['class_id'] . $data['class_title'] . $data['type'] . $data['days'] . $data['times'] . $data['instructors'] . $data['location']);
+      $string = '';
+      foreach($data as $key => $value)
+      {
+         $string .= $value;
+      }
+
+      return sha1($string);
    }
    
    private function getStatus($tdetail)
