@@ -2,17 +2,13 @@
 
 use Twilio;
 use DB;
+
 class NotifyController extends Controller {
 
    public function checkOpen()
    {
       $checks = [
 
-         [
-            'term_id'         => 2158,
-            'class_number'    => 20996,
-            'phone_number'    => getenv('BRAD_NUMBER'),
-         ],
          [
             'term_id'         => 2158,
             'class_number'    => 20989,
