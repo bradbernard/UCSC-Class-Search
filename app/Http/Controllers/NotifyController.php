@@ -34,7 +34,7 @@ class NotifyController extends Controller {
 
       if(count($class) == 1)
       {
-         $this->sendText($options['number'], $class);
+         $this->sendText($options['phone_number'], $class);
       }
    }
 
