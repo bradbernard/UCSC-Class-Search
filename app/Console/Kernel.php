@@ -22,8 +22,11 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected function schedule(Schedule $schedule)
 	{
-		$schedule->command('inspire')
-				 ->hourly();
+		$schedule->call('App\Http\Controllers\SearchController@searchMine')
+					->name('SearchController@searchMine')
+					->withoutOverlapping()
+					->cron('*/1 * * * * *')
+					->thenPing(getenv('SEARCHMINE_PING'));
 	}
 
 }

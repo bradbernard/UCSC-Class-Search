@@ -62,51 +62,6 @@ class SearchController extends Controller {
       $class   = $options['class'];
       $termId  = $options['termId'];
 
-      //$class = [
-      //
-      //   'name'            => 'CMPE 12 - 01',
-      //   'teacherFull'     => 'Dunne,M.J.',
-      //   'time'            => '08:00AM-09:45AM',
-      //   'days'            => 'TuTh',
-      //   'type'            => 'LEC',
-      //   'location'        => 'Humn Lecture Hall',
-      //   'credits'         => '5',
-      //   'teacherShort'    => 'Dunne',
-      //   'subjectShort'    => 'CMPE',
-      //   'matches'         => '5'
-      //
-      //];
-
-      //$class = [
-      //
-      //   'name'            => 'CMPS 129 - 01',
-      //   'teacherFull'     => 'Long,D.D.',
-      //   'time'            => '03:30PM-04:40PM',
-      //   'days'            => 'MWF',
-      //   'type'            => 'LEC',
-      //   'location'        => 'J Baskin Engr 165',
-      //   'credits'         => '5',
-      //   'teacherShort'    => 'Long',
-      //   'subjectShort'    => 'CMPS',
-      //   'matches'         => '6'
-      //
-      //];
-
-      //$class = [
-      //
-      //   'name'            => 'CMPS 280S - 01',
-      //   'teacherFull'     => 'Long,D.D.',
-      //   'time'            => '01:00PM-03:00PM',
-      //   'days'            => 'M',
-      //   'type'            => 'SEM',
-      //   'location'        => 'Engineer 2 599',
-      //   'credits'         => '2',
-      //   'teacherShort'    => 'Long',
-      //   'subjectShort'    => 'CMPS',
-      //   'matches'         => '6'
-      //
-      //];
-
       $body = [
 
          'action'                      => 'results',
@@ -218,5 +173,59 @@ class SearchController extends Controller {
 
       return $twilio->message($number, $message);
    }
+   
+   function statusCheck()
+   {
+      return [
+
+         'status' => 'healthy'
+
+      ];
+   }
+
+   //$class = [
+   //
+   //   'name'            => 'CMPE 12 - 01',
+   //   'teacherFull'     => 'Dunne,M.J.',
+   //   'time'            => '08:00AM-09:45AM',
+   //   'days'            => 'TuTh',
+   //   'type'            => 'LEC',
+   //   'location'        => 'Humn Lecture Hall',
+   //   'credits'         => '5',
+   //   'teacherShort'    => 'Dunne',
+   //   'subjectShort'    => 'CMPE',
+   //   'matches'         => '5'
+   //
+   //];
+
+   //$class = [
+   //
+   //   'name'            => 'CMPS 129 - 01',
+   //   'teacherFull'     => 'Long,D.D.',
+   //   'time'            => '03:30PM-04:40PM',
+   //   'days'            => 'MWF',
+   //   'type'            => 'LEC',
+   //   'location'        => 'J Baskin Engr 165',
+   //   'credits'         => '5',
+   //   'teacherShort'    => 'Long',
+   //   'subjectShort'    => 'CMPS',
+   //   'matches'         => '6'
+   //
+   //];
+
+   //$class = [
+   //
+   //   'name'            => 'CMPS 280S - 01',
+   //   'teacherFull'     => 'Long,D.D.',
+   //   'time'            => '01:00PM-03:00PM',
+   //   'days'            => 'M',
+   //   'type'            => 'SEM',
+   //   'location'        => 'Engineer 2 599',
+   //   'credits'         => '2',
+   //   'teacherShort'    => 'Long',
+   //   'subjectShort'    => 'CMPS',
+   //   'matches'         => '6'
+   //
+   //];
 
 }

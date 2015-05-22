@@ -13,6 +13,9 @@
 |
 */
 
+Route::get('/', ['uses' => 'SearchController@statusCheck']);
+Route::get('/mine', ['uses' => 'SearchController@searchMine']);
+
 //Route::get('/', function()
 //{
 //
@@ -39,5 +42,3 @@
 //   return $searchController->searchClass($number, $class, $termId);
 //
 //});
-
-Route::get('/mine', ['uses' => 'SearchController@searchMine']);
