@@ -14,34 +14,8 @@
 */
 
 Route::get('/', ['uses' => 'SearchController@statusCheck']);
-Route::get('/mine', ['uses' => 'SearchController@searchMine']);
-Route::get('/search/{termId}', ['uses' => 'InsertController@insertTerm']);
-Route::get('/test', ['uses' => 'InsertController@insertTerms']);
-Route::get('/open', ['uses' => 'NotifyController@checkOpen']);
 
-//Route::get('/', function()
-//{
-//
-//   $searchController = new SearchController();
-//
-//   $class = [
-//
-//      'name'            => 'CMPS 280S - 01',
-//      'teacherFull'     => 'Long,D.D.',
-//      'time'            => '01:00PM-03:00PM',
-//      'days'            => 'M',
-//      'type'            => 'SEM',
-//      'location'        => 'Engineer 2 599',
-//      'credits'         => '2',
-//      'teacherShort'    => 'Long',
-//      'subjectShort'    => 'CMPS',
-//      'matches'         => '6'
-//
-//   ];
-//
-//   $number = "+17146550347";
-//   $termId = 2158;
-//
-//   return $searchController->searchClass($number, $class, $termId);
-//
-//});
+//Route::get('/mine', ['uses' => 'SearchController@searchMine']);
+//Route::get('/search/{termId}', ['uses' => 'InsertController@insertTerm']);
+//Route::get('/test', ['uses' => 'InsertController@insertTerms']);
+//Route::get('/open', ['uses' => 'NotifyController@checkOpen']);
