@@ -64,6 +64,24 @@ class SearchController extends Controller {
             'termId' => 2158
          ],
          [
+            'class' => [
+
+               'name'            => 'CMPS 12B - 01',
+               'teacherFull'     => 'Whitehead,N.O.',
+               'time'            => '08:00AM-09:45AM',
+               'days'            => 'TuTh',
+               'type'            => 'LEC',
+               'location'        => 'Thim Lecture 003',
+               'credits'         => '5',
+               'teacherShort'    => 'Whitehead',
+               'subjectShort'    => 'CMPS',
+               'matches'         => '6'
+
+            ],
+            'number' => getenv('CHRIS_NUMBER'),
+            'termId' => 2158
+         ],
+         [
             'class'  => [
 
                'name'            => 'CMPS 5J - 01',
