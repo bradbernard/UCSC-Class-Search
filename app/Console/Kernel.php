@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel {
 					->name('InsertController@insertTerms')
 					->withoutOverlapping()
 					->cron('*/1 * * * * *')
-					->thenPing(getenv('INSERTCONTROLLER_PING'));
+					->thenPing(env('INSERTCONTROLLER_PING'));
 
 	}
 
