@@ -21,8 +21,62 @@ class SearchController extends Controller {
                'credits'         => '5',
                'teacherShort'    => 'Dunne',
                'subjectShort'    => 'CMPE',
-               'matches'         => '5'
+               'matches'         => '6'
             
+            ],
+            'number' => getenv('BRAD_NUMBER'),
+            'termId' => 2158
+         ],
+         [
+            'class' => [
+
+               'name'            => 'CMPS 112 - 01',
+               'teacherFull'     => 'Mackey,W.F.',
+               'time'            => '03:30PM-04:40PM',
+               'days'            => 'MWF',
+               'type'            => 'LEC',
+               'location'        => 'Kresge Clrm 327',
+               'credits'         => '5',
+               'teacherShort'    => 'Mackey',
+               'subjectShort'    => 'CMPS',
+               'matches'         => '6'
+
+            ],
+            'number' => getenv('BRAD_NUMBER'),
+            'termId' => 2158
+         ],
+         [
+            'class' => [
+
+               'name'            => 'CMPS 130 - 01',
+               'teacherFull'     => 'Van Gelder,A.',
+               'time'            => '02:00PM-03:10PM',
+               'days'            => 'MWF',
+               'type'            => 'LEC',
+               'location'        => 'Steven Acad 175',
+               'credits'         => '5',
+               'teacherShort'    => 'Van Gelder',
+               'subjectShort'    => 'CMPS',
+               'matches'         => '6'
+
+            ],
+            'number' => getenv('BRAD_NUMBER'),
+            'termId' => 2158
+         ],
+         [
+            'class' => [
+
+               'name'            => 'CMPS 10 - 01',
+               'teacherFull'     => 'McDowell,C.E.',
+               'time'            => '03:30PM-04:40PM',
+               'days'            => 'MWF',
+               'type'            => 'LEC',
+               'location'        => 'Media Theater M110',
+               'credits'         => '5',
+               'teacherShort'    => 'McDowell',
+               'subjectShort'    => 'CMPS',
+               'matches'         => '6'
+
             ],
             'number' => getenv('BRAD_NUMBER'),
             'termId' => 2158
