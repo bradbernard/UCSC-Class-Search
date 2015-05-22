@@ -7,7 +7,7 @@ class InsertController extends Controller {
 
    public function insertTerms()
    {
-      $this->insertTerms(2158);
+      $this->insertTerm(2158);
    }
 
    public function insertTerm($termId)
