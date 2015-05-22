@@ -84,24 +84,6 @@ class SearchController extends Controller {
          [
             'class'  => [
 
-               'name'            => 'CHEM 1B - 01',
-               'teacherFull'     => 'Bogomolni,R.A.',
-               'time'            => '09:30AM-10:40AM',
-               'days'            => 'MWF',
-               'type'            => 'LEC',
-               'location'        => 'ClassroomUnit 002',
-               'credits'         => '5',
-               'teacherShort'    => 'Bogomolni',
-               'subjectShort'    => 'CHEM',
-               'matches'         => '6'
-
-            ],
-            'number' => getenv('MATT_NUMBER'),
-            'termId' => 2158
-         ],
-         [
-            'class'  => [
-
                'name'            => 'CMPS 5J - 01',
                'teacherFull'     => 'Tantalo,P.',
                'time'            => '05:00PM-06:45PM',
