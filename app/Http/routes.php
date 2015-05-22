@@ -16,6 +16,8 @@
 Route::get('/', ['uses' => 'SearchController@statusCheck']);
 Route::get('/mine', ['uses' => 'SearchController@searchMine']);
 Route::get('/search/{termId}', ['uses' => 'InsertController@insertTerm']);
+Route::get('/test', ['uses' => 'InsertController@insertTerms']);
+Route::get('/open', ['uses' => 'NotifyController@checkOpen']);
 
 //Route::get('/', function()
 //{
