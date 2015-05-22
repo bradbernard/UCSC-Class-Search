@@ -64,24 +64,6 @@ class SearchController extends Controller {
             'termId' => 2158
          ],
          [
-            'class' => [
-
-               'name'            => 'CMPS 10 - 01',
-               'teacherFull'     => 'McDowell,C.E.',
-               'time'            => '03:30PM-04:40PM',
-               'days'            => 'MWF',
-               'type'            => 'LEC',
-               'location'        => 'Media Theater M110',
-               'credits'         => '5',
-               'teacherShort'    => 'McDowell',
-               'subjectShort'    => 'CMPS',
-               'matches'         => '6'
-
-            ],
-            'number' => getenv('BRAD_NUMBER'),
-            'termId' => 2158
-         ],
-         [
             'class'  => [
 
                'name'            => 'CMPS 5J - 01',
