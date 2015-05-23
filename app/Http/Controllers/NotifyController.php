@@ -2,6 +2,7 @@
 
 use Twilio;
 use DB;
+use Config;
 
 class NotifyController extends Controller {
 
@@ -41,7 +42,7 @@ class NotifyController extends Controller {
 
    public function doCheck($options)
    {
-      $class = DB::table('classes')
+      $class = DB::table(Config::get('table.active'))
                   ->where('term_id', $options['term_id'])
                   ->where('class_number', $options['class_number'])
                   ->where('status', 1)

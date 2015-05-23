@@ -2,6 +2,8 @@
 
 use Twilio;
 use DB;
+use Config;
+use File;
 
 class InsertController extends Controller {
 
@@ -100,6 +102,9 @@ class InsertController extends Controller {
       $html = new \Htmldom();
       $html->load($response->getBody());
 
+      $tableName = Config::get('table.inactive');
+      DB::table($tableName)->truncate();
+
       foreach($html->find('#results_table tbody') as $tbody)
       {
          foreach($tbody->find('tr') as $trow)
@@ -138,15 +143,21 @@ class InsertController extends Controller {
 
             $data['hash'] = $this->getHash($data);
 
-            if(DB::table('classes')->where('hash', $data['hash'])->count() == 0)
-            {
-               DB::table('classes')->insert($data);
-            }
+            DB::table($tableName)->insert($data);
 
          }
 
       }
       
+      $write = [
+
+         'active'       => Config::get('table.inactive'),
+         'inactive'     => Config::get('table.active'),
+
+      ];
+
+      File::put(config_path() . '/table.php', "<?php \n\nreturn " . $this->var_export54($write) . ";\n");
+
    }
 
    private function getHash($data)
@@ -161,13 +172,13 @@ class InsertController extends Controller {
 
       return sha1($string);
    }
-   
+
    private function getStatus($tdetail)
    {
       $status = 0;
-      
+
       $text = $tdetail->find('img', 0)->alt;
-      
+
       if($text == 'Open')
       {
          $status = 1;
@@ -179,6 +190,27 @@ class InsertController extends Controller {
       
       return $status;
    }
+   
+   private function var_export54($var, $indent="")
+   {
+      switch (gettype($var)) {
+          case "string":
+              return '"' . addcslashes($var, "\\\$\"\r\n\t\v\f") . '"';
+          case "array":
+              $indexed = array_keys($var) === range(0, count($var) - 1);
+              $r = [];
+              foreach ($var as $key => $value) {
+                  $r[] = "$indent    "
+                       . ($indexed ? "" : $this->var_export54($key) . " => ")
+                       . $this->var_export54($value, "$indent    ");
+              }
+              return "[\n" . implode(",\n", $r) . "\n" . $indent . "]";
+          case "boolean":
+              return $var ? "TRUE" : "FALSE";
+          default:
+              return var_export($var, TRUE);
+      }
+  }
 
    private function br2nl($string)
    {
