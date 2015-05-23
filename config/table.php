@@ -1,6 +1,6 @@
 <?php 
 
 return [
-    "active" => "classes",
-    "inactive" => "classes_1"
+    "active" => "classes_1",
+    "inactive" => "classes"
 ];

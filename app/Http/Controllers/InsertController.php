@@ -4,12 +4,23 @@ use Twilio;
 use DB;
 use Config;
 use File;
+use Artisan;
 
 class InsertController extends Controller {
 
    public function insertTerms()
    {
       $this->insertTerm(2158);
+   }
+
+   public function getConfig()
+   {
+      return [
+
+         'active'    => Config::get('table.active'),
+         'inactive'  => Config::get('table.inactive'),
+
+      ];
    }
 
    public function insertTerm($termId)
@@ -157,6 +168,7 @@ class InsertController extends Controller {
       ];
 
       File::put(config_path() . '/table.php', "<?php \n\nreturn " . $this->var_export54($write) . ";\n");
+      Artisan::call('config:cache');
 
    }
 
