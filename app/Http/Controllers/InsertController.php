@@ -31,8 +31,8 @@ class InsertController extends Controller {
          'defaults'  => [
 
             'cookies'               => true,
-            'timeout'               => 5.0,
-            'connect_timeout'       => 5.0,
+            'timeout'               => 20.0,
+            'connect_timeout'       => 20.0,
             'verify'                => false,
             'headers'               => [
 
