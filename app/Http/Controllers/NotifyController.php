@@ -27,8 +27,13 @@ class NotifyController extends Controller {
 			],
 			[
 				'term_id'			=> 2158,
-				'class_number'		=> 20713,
+				'class_number'		=> 21421,
 				'phone_number'		=> getenv('CHRIS_NUMBER')
+			],
+			[
+				'term_id'			=> 2158,
+				'class_number'		=> 20741,
+				'phone_number'		=> getenv('AIDAN_NUMBER')
 			],
 
       ];
