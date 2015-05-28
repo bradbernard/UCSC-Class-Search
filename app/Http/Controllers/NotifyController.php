@@ -3,6 +3,7 @@
 use Twilio;
 use DB;
 use Config;
+use Carbon\Carbon;
 
 class NotifyController extends Controller {
 
@@ -18,6 +19,11 @@ class NotifyController extends Controller {
 			[
 				'term_id'			=> 2158,
 				'class_number'		=> 20753,
+				'phone_number'		=> getenv('BRAD_NUMBER')
+			],
+			[
+				'term_id'			=> 2158,
+				'class_number'		=> 21025,
 				'phone_number'		=> getenv('BRAD_NUMBER')
 			],
 			[
@@ -72,6 +78,7 @@ class NotifyController extends Controller {
       $message    .= 'Days: ' . $class->days . "\n";
       $message    .= 'Times: ' . $class->times . "\n";
       $message    .= 'Type: ' . $class->type . "\n";
+		$message		.= 'Updated: ' . Carbon::now() . "\n";
 
       return $twilio->message($number, $message);
    }
