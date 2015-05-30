@@ -25,6 +25,8 @@ class SmsResponseController extends Controller {
       //
       //Log::info("From $from Body $body");
 
+      Log::info("In post SMS");
+
       $from = "+17146550347";
       $body = "Poop";
 
@@ -33,6 +35,8 @@ class SmsResponseController extends Controller {
 
    public function parseBody($from, $body)
    {
+      Log::info("In Parse Body  TOP");
+      
       //list {term_id} (2158) --> Shows classes signed up for that term
       //list --> Shows all classes signed up for with that number
       //remove {term_id} {class_number} (2158 22581) --> Removes a class that they signed up for
@@ -42,9 +46,12 @@ class SmsResponseController extends Controller {
 
       $twilio = Twilio::from('twilio');
       $args = explode($this->separator, $body);
+      
+      Log::info("In post body after explod");
 
       if(count($args) == 1)
       {
+         Log::info("Count args is 1");
          $commands = ['help', 'terms', 'list'];
 
          if(!in_array($args[0], $commands))
