@@ -8,6 +8,7 @@ use Twilio;
 use Response;
 use DB;
 use Config;
+use Log;
 
 class SmsResponseController extends Controller {
 
@@ -17,8 +18,12 @@ class SmsResponseController extends Controller {
    {
       $params = Request::all();
 
+      Log::info(var_export($params, true));
+
       $from = $params['From'];
       $body = $params['Body'];
+
+      Log::info("From $from Body $body");
 
       $this->parseBody($from, $body);
    }
