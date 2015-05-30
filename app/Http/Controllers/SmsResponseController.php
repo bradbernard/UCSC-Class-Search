@@ -66,9 +66,9 @@ class SmsResponseController extends Controller {
                return $this->listResponseAll($twilio);
             }
          }
-
       }
 
+      return $this->errorResponse($twilio);
    }
 
    private function listResponseAll($twilio)
