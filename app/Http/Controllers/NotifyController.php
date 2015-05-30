@@ -9,7 +9,7 @@ class NotifyController extends Controller {
 
 	public function getWatchers($termId)
 	{
-		return DB::from('watchers')->select(['term_id', 'class_number', 'phone_number'])->where('term_id', $termId)->get();
+		return DB::table('watchers')->select(['term_id', 'class_number', 'phone_number'])->where('term_id', $termId)->get();
 	}
 
    public function checkOpen()
