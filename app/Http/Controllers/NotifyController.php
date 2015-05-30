@@ -11,6 +11,7 @@ class NotifyController extends Controller {
 	{
 		return DB::from('watchers')->select(['term_id', 'class_number', 'phone_number'])->where('term_id', $termId)->get();
 	}
+
    public function checkOpen()
    {
 //      $checks = [
