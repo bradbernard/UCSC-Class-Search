@@ -7,42 +7,43 @@ use Carbon\Carbon;
 
 class NotifyController extends Controller {
 
+	public function getWatchers($termId)
+	{
+		return DB::from('watchers')->select(['term_id', 'class_number', 'phone_number'])->where('term_id', $termId)->get();
+	}
    public function checkOpen()
    {
-      $checks = [
+//      $checks = [
+//
+//         [
+//            'term_id'         => 2158,
+//            'class_number'    => 21889,
+//            'phone_number'    => getenv('BRAD_NUMBER'),
+//         ],
+//			[
+//				'term_id'			=> 2158,
+//				'class_number'		=> 20753,
+//				'phone_number'		=> getenv('BRAD_NUMBER')
+//			],
+//			[
+//				'term_id'			=> 2158,
+//				'class_number'		=> 21025,
+//				'phone_number'		=> getenv('BRAD_NUMBER')
+//			],
+//			[
+//				'term_id'			=> 2158,
+//				'class_number'		=> 20720,
+//				'phone_number'		=> getenv('MATT_NUMBER'),
+//			],
+//			[
+//				'term_id'			=> 2158,
+//				'class_number'		=> 20741,
+//				'phone_number'		=> getenv('AIDAN_NUMBER')
+//			],
+//
+//      ];
 
-         [
-            'term_id'         => 2158,
-            'class_number'    => 21889,
-            'phone_number'    => getenv('BRAD_NUMBER'),
-         ],
-			[
-				'term_id'			=> 2158,
-				'class_number'		=> 20753,
-				'phone_number'		=> getenv('BRAD_NUMBER')
-			],
-			[
-				'term_id'			=> 2158,
-				'class_number'		=> 21025,
-				'phone_number'		=> getenv('BRAD_NUMBER')
-			],
-			[
-				'term_id'			=> 2158,
-				'class_number'		=> 20720,
-				'phone_number'		=> getenv('MATT_NUMBER'),
-			],
-			//[
-			//	'term_id'			=> 2158,
-			//	'class_number'		=> 21421,
-			//	'phone_number'		=> getenv('CHRIS_NUMBER')
-			//],
-			[
-				'term_id'			=> 2158,
-				'class_number'		=> 20741,
-				'phone_number'		=> getenv('AIDAN_NUMBER')
-			],
-
-      ];
+		$checks = $this->getWatchers(2158);
 
 		foreach($checks as $check)
 		{
