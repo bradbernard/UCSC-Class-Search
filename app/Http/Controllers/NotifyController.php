@@ -78,7 +78,7 @@ class NotifyController extends Controller {
       $message    .= 'Days: ' . $class->days . "\n";
       $message    .= 'Times: ' . $class->times . "\n";
       $message    .= 'Type: ' . $class->type . "\n";
-		$message		.= 'Updated: ' . Carbon::now() . "\n";
+		$message		.= 'Updated: ' . Carbon::now("PST")->format('m/d h:i A') . "\n";
 
       return $twilio->message($number, $message);
    }
