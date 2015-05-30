@@ -16,14 +16,17 @@ class SmsResponseController extends Controller {
 
    public function postSms()
    {
-      $params = Request::all();
+      //$params = Request::all();
+      //
+      //Log::info(var_export($params, true));
+      //
+      //$from = $params['From'];
+      //$body = $params['Body'];
+      //
+      //Log::info("From $from Body $body");
 
-      Log::info(var_export($params, true));
-
-      $from = $params['From'];
-      $body = $params['Body'];
-
-      Log::info("From $from Body $body");
+      $from = "+17146550347";
+      $body = "Poop";
 
       $this->parseBody($from, $body);
    }
