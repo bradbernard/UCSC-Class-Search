@@ -103,28 +103,60 @@ class SmsResponseController extends Controller {
          
          if($this->args[0] == 'add')
          {
-            if($this->validTerm() && $this->validClass() && !$this->watchingAlready())
+            if($this->validTerm())
             {
-               return $this->addResponse();
+               if($this->validClass())
+               {
+                  if(!$this->watchingAlready())
+                  {
+                     return $this->addResponse();
+                  }
+                  else
+                  {
+                     return $this->errorMessage("You are already watching this class.");
+                  }
+               }
+               else
+               {
+                  return $this->errorMessage("Invalid class number.");
+               }
             }
             else
             {
-               dd("WTF");
+               return $this->errorMessage("Invalid term ID.");
             }
          }
 
          if($this->args[0] == 'remove')
          {
-            if($this->validTerm() && $this->validClass() && $this->watchingAlready())
+            if($this->validTerm())
             {
-               return $this->removeResponse();
+               if($this->validClass())
+               {
+                  if($this->watchingAlready())
+                  {
+                     return $this->removeResponse();
+                  }
+                  else
+                  {
+                     return $this->errorMessage("You are not watching this class so you cannot remove it.");
+                  }
+               }
+               else
+               {
+                  return $this->errorMessage("Invalid class number.");
+               }
+            }
+            else
+            {
+               return $this->errorMessage("Invalid term ID.");
             }
          }
       }
 
       return $this->errorResponse($this->twilio);
    }
-   
+
    private function listResult($termId = -1)
    {
       if($termId == -1)
@@ -156,6 +188,17 @@ class SmsResponseController extends Controller {
                ->groupBy('watchers.id')
                ->get();
       }
+   }
+   
+   private function errorMessage($error)
+   {
+      $twiml = $this->twilio->twiml(function($message) use ($error) {
+
+         $message->message($error);
+
+      });
+
+      return $this->makeResponse($twiml);
    }
    
    private function watchingAlready()
