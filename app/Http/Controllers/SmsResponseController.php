@@ -77,7 +77,7 @@ class SmsResponseController extends Controller {
 
          foreach($watchers as $watcher)
          {
-            $responseBody .= $watcher->term_id . " " . $watcher->class_number . "\n";
+            $responseBody .= '- ' . $watcher->term_id . " " . $watcher->class_number . "\n";
          }
 
          $message->message($responseBody);
@@ -97,7 +97,7 @@ class SmsResponseController extends Controller {
 
          foreach($terms as $term)
          {
-            $responseBody .= $term->term_id . " --> " . $term->term_name . "\n";
+            $responseBody .= '- ' . $term->term_id . " --> " . $term->term_name . "\n";
          }
 
          $message->message($responseBody);
@@ -112,12 +112,12 @@ class SmsResponseController extends Controller {
       $twiml = $twilio->twiml(function($message) {
 
          $responseBody  = "Available commands:\n";
-         $responseBody .= "remove {term_id} {class_num}\n";
-         $responseBody .= "add {term_id} {class_num}\n";
-         $responseBody .= "list {term_id}\n";
-         $responseBody .= "terms\n";
-         $responseBody .= "list\n";
-         $responseBody .= "help\n";
+         $responseBody .= "- remove {term_id} {class_num}\n";
+         $responseBody .= "- add {term_id} {class_num}\n";
+         $responseBody .= "- list {term_id}\n";
+         $responseBody .= "- terms\n";
+         $responseBody .= "- list\n";
+         $responseBody .= "- help\n";
 
          $message->message($responseBody);
 
