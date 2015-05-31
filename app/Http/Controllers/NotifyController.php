@@ -22,10 +22,57 @@ class NotifyController extends Controller {
 
 			foreach($checks as $check)
 			{
-				$this->doCheck((array)$check);
+				$this->doCheck((array) $check);
 			}
 		}
    }
+	
+	public function checkClasses()
+	{
+		$terms = DB::table('terms')->select('term_id')->get();
+		
+		$select = [
+
+			Config::get('table.active') . '.enrollment_total', Config::get('table.active') . '.capacity',
+			Config::get('table.active') . '.available_seats', Config::get('table.active') . '.class_id',
+			Config::get('table.active') . '.class_number', Config::get('table.active') . '.class_title',
+			Config::get('table.active') . '.instructors', 'terms.term_name', Config::get('table.active') . '.status',
+			Config::get('table.active') . '.term_id', 'watchers.phone_number',
+
+		];
+
+		foreach($terms as $term)
+		{
+			DB::table('watchers')
+			->select($select)
+			->join('terms', 'terms.term_id', '=', 'watchers.term_id')
+			->join(Config::get('table.active'), function($join)
+			{
+				$join->on(Config::get('table.active') . '.class_number', '=', 'watchers.class_number');
+				$join->on(Config::get('table.active') . '.term_id', '=', 'watchers.term_id');
+			})
+			->where('watchers.term_id', $term->term_id)
+			->where('watchers.text_status', DB::raw(Config::get('table.active') . '.status'))
+			->chunk(500, function($watchers)
+			{
+				foreach($watchers as $watcher)
+				{
+					$this->sendText($watcher->phone_number, $watcher);
+				}
+
+			});
+
+			DB::table('watchers')
+			->join(Config::get('table.active'), function($join)
+			{
+				$join->on(Config::get('table.active') . '.class_number', '=', 'watchers.class_number');
+				$join->on(Config::get('table.active') . '.term_id', '=', 'watchers.term_id');
+			})
+			->where('watchers.term_id', $term->term_id)
+			->where('watchers.text_status', DB::raw(Config::get('table.active') . '.status'))
+			->update(['watchers.text_status' => DB::raw('IF (watchers.text_status = 1, 0, 1)')]);
+		}
+	}
 
    public function doCheck($options)
    {
@@ -46,22 +93,21 @@ class NotifyController extends Controller {
    {
       $twilio = Twilio::from('twilio');
 
-		$message = '';
+		$message = "Class open!\n";
 
-		$message    .= $class->enrollment_total . '/' . $class->capacity . " (" . $class->available_seats . " open)\n";
-      $message    .= $class->class_id . ' (' . $class->class_number . ')' . "\n";
+		if($class->status == 0)
+		{
+			$message	= "Class closed!\n";
+		}
+
+		$message    .= $class->enrollment_total . '/' . $class->capacity . ' (' . $class->available_seats . " open)\n";
+      $message    .= $class->class_id . ' (' . $class->class_number . ")\n";
       $message    .= $class->class_title . "\n";
       $message    .= $class->instructors . "\n";
-		$message		.= $class->term_name . ' (' . $class->term_id . ')' . "\n";
-		$message		.= "\n";
-		$message		.= Carbon::now("PST")->format('n/j g:i A') . "\n";
+		$message		.= $class->term_name . ' (' . $class->term_id . ")\n";
+		$message		.= Carbon::now("PST")->format('n/j g:i:s A') . "\n";
 
-		//$message    .= 'Location: ' . $class->location . "\n";
-      //$message    .= 'Days: ' . $class->days . "\n";
-      //$message    .= 'Times: ' . $class->times . "\n";
-      //$message    .= 'Type: ' . $class->type . "\n";
-
-      return $twilio->message($number, $message);
+      $twilio->message($number, $message);
    }
 
 }

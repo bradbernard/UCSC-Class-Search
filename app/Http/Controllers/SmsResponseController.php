@@ -12,21 +12,16 @@ use Log;
 
 class SmsResponseController extends Controller {
 
-   private $separator = ' ';
+   private $separator      = ' ';
 
-   private $listSelect = [
+   private $twilio         = null;
 
-      'terms.term_name', 'classes.class_title', 'classes.class_id', 'classes.class_number',
-      'watchers.id', 'terms.term_id',
+   private $from           = null;
+   private $body           = null;
 
-   ];
-
-   private $twilio = null;
-   private $from = null;
-   private $body = null;
-   private $termId = null;
-   private $args = null;
-   private $classNumber = null;
+   private $args           = null;
+   private $termId         = null;
+   private $classNumber    = null;
 
    public function postSms()
    {
@@ -40,13 +35,6 @@ class SmsResponseController extends Controller {
 
    public function parseBody()
    {
-      //list {term_id} (2158) --> Shows classes signed up for that term
-      //list --> Shows all classes signed up for with that number
-      //remove {term_id} {class_number} (2158 22581) --> Removes a class that they signed up for
-      //add {term_id} {class_number} --> Adds a class to watch for that term
-      //terms --> Shows all terms
-      //info --> shows all commands
-
       $this->twilio = Twilio::from('twilio');
       $this->args = explode($this->separator, strtolower(trim($this->body)));
 
@@ -163,15 +151,22 @@ class SmsResponseController extends Controller {
 
    private function listResult($termId = -1)
    {
+      $listSelect = [
+
+         'terms.term_name', Config::get('table.active') . '.class_title', Config::get('table.active') . '.class_id',
+         Config::get('table.active') . '.class_number', 'watchers.id', 'terms.term_id',
+
+      ];
+
       if($termId == -1)
       {
          return DB::table('watchers')
-               ->select($this->listSelect)
+               ->select($listSelect)
                ->join('terms', 'terms.term_id', '=', 'watchers.term_id')
-               ->join('classes', function($join)
+               ->join(Config::get('table.active'), function($join)
                {
-                  $join->on('classes.class_number', '=', 'watchers.class_number');
-                  $join->on('classes.term_id', '=', 'watchers.term_id');
+                  $join->on(Config::get('table.active') . '.class_number', '=', 'watchers.class_number');
+                  $join->on(Config::get('table.active') . '.term_id', '=', 'watchers.term_id');
                })
                ->where('watchers.phone_number', $this->from)
                ->groupBy('watchers.id')
@@ -180,12 +175,12 @@ class SmsResponseController extends Controller {
       else
       {
          return DB::table('watchers')
-               ->select($this->listSelect)
+               ->select($listSelect)
                ->join('terms', 'terms.term_id', '=', 'watchers.term_id')
-               ->join('classes', function($join)
+               ->join(Config::get('table.active'), function($join)
                {
-                  $join->on('classes.class_number', '=', 'watchers.class_number');
-                  $join->on('classes.term_id', '=', 'watchers.term_id');
+                  $join->on(Config::get('table.active') . '.class_number', '=', 'watchers.class_number');
+                  $join->on(Config::get('table.active') . '.term_id', '=', 'watchers.term_id');
                })
                ->where('watchers.phone_number', $this->from)
                ->where('watchers.term_id', $termId)
@@ -331,6 +326,7 @@ class SmsResponseController extends Controller {
          'phone_number'    => $this->from,
          'term_id'         => $this->termId,
          'class_number'    => $this->classNumber,
+         'text_status'     => 1,
          'created_at'      => \Carbon\Carbon::now(),
          'updated_at'      => \Carbon\Carbon::now(),
 

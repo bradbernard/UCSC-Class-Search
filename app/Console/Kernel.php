@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel {
 					->cron('*/1 * * * * *')
 					->thenPing(env('INSERTCONTROLLER_PING'));
 
-		$schedule->call('App\Http\Controllers\NotifyController@checkOpen')
+		$schedule->call('App\Http\Controllers\NotifyController@checkClasses')
 					->name('NotifyController@checkOpen')
 					->withoutOverlapping()
 					->cron('*/1 * * * * *')

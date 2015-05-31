@@ -157,8 +157,6 @@ class InsertController extends Controller {
 
             ];
 
-            //$data['hash'] = $this->getHash($data);
-
             DB::table($tableName)->insert($data);
 
          }
