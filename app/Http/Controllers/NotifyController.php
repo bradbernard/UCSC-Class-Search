@@ -52,7 +52,7 @@ class NotifyController extends Controller {
       $message    .= $class->class_id . ' (' . $class->class_number . ')' . "\n";
       $message    .= $class->class_title . "\n";
       $message    .= $class->instructors . "\n";
-		$message		.= $class->term_name . "\n";
+		$message		.= $class->term_name . ' (' . $class->term_id . ')' . "\n";
 		$message		.= "\n";
 		$message		.= Carbon::now("PST")->format('n/j g:i A') . "\n";
 
