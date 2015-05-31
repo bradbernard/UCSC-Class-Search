@@ -67,7 +67,7 @@ class SmsResponseController extends Controller {
 
          if(!in_array($this->args[0], $commands))
          {
-            return $this->errorMessage("Invalid command.");
+            return $this->errorResponse();
          }
 
          if($this->args[0] == 'list')
@@ -88,7 +88,7 @@ class SmsResponseController extends Controller {
          
          if(!in_array($this->args[0], $commands))
          {
-            return $this->errorMessage("Invalid command.");
+            return $this->errorResponse();
          }
          
          if($this->args[0] == 'add')
