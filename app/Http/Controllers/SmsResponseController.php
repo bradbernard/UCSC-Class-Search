@@ -47,8 +47,6 @@ class SmsResponseController extends Controller {
       //terms --> Shows all terms
       //info --> shows all commands
 
-      Log::info("From: {$this->from}");
-
       $this->twilio = Twilio::from('twilio');
       $this->args = explode($this->separator, strtolower(trim($this->body)));
 
