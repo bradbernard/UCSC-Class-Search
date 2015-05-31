@@ -81,7 +81,7 @@ class SmsResponseController extends Controller {
 
          if(!in_array($this->args[0], $commands))
          {
-            return $this->errorResponse();
+            return $this->errorMessage("Invalid command.");
          }
 
          if($this->args[0] == 'list')
@@ -89,6 +89,10 @@ class SmsResponseController extends Controller {
             if($this->validTerm())
             {
                return $this->listResponseTerm();
+            }
+            else
+            {
+               return $this->errorMessage("Invalid term ID.");
             }
          }
       }
@@ -98,7 +102,7 @@ class SmsResponseController extends Controller {
          
          if(!in_array($this->args[0], $commands))
          {
-            return $this->errorResponse();
+            return $this->errorMessage("Invalid command.");
          }
          
          if($this->args[0] == 'add')
@@ -203,6 +207,23 @@ class SmsResponseController extends Controller {
    
    private function watchingAlready()
    {
+      if($this->termId == '*' && $this->classNumber == '*')
+      {
+         return true;
+      }
+
+      if(is_numeric($this->termId) && $this->classNumber == '*')
+      {
+         return true;
+      }
+
+      if(is_numeric($this->classNumber) && $this->termId == '*')
+      {
+         $response = $this->errorMessage("Wildcard only allowed on both term ID and class number or on class number and not on term ID. Like: * * or {num} * not * {num}");
+         $response->send();
+         die();
+      }
+
       $exists = DB::table('watchers')->select('id')
                ->where('term_id', $this->termId)
                ->where('class_number', $this->classNumber)
@@ -232,6 +253,21 @@ class SmsResponseController extends Controller {
             return true;
          }
       }
+      else
+      {
+         if($termId == '*' && $this->args[0] == 'remove')
+         {
+            $this->termId = '*';
+
+            return true;
+         }
+         else
+         {
+            $response = $this->errorMessage("Wildcards only allowed on remove command.");
+            $response->send();
+            die();
+         }
+      }
 
       return false;
    }
@@ -242,13 +278,28 @@ class SmsResponseController extends Controller {
       
       if(is_numeric($classNumber))
       {
-         $exists = DB::table(Config::get('table.active'))->where('class_number', $classNumber)->groupBy('class_number')->count();
+         $exists = DB::table(Config::get('table.active'))->select('id')->where('class_number', $classNumber)->groupBy('id')->count();
          
          if($exists == 1)
          {
             $this->classNumber = $classNumber;
             
             return true;
+         }
+      }
+      else
+      {
+         if($classNumber == '*' && $this->args[0] == 'remove')
+         {
+            $this->classNumber = '*';
+
+            return true;
+         }
+         else
+         {
+            $response = $this->errorMessage("Wildcards only allowed on remove command.");
+            $response->send();
+            die();
          }
       }
       
