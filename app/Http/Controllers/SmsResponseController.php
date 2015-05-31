@@ -30,7 +30,7 @@ class SmsResponseController extends Controller {
       $from = "+17146550347";
       $body = "Poop";
 
-      $this->parseBody($from, $body);
+      return $this->parseBody($from, $body);
    }
 
    public function parseBody($from, $body)
