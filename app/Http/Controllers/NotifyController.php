@@ -14,50 +14,25 @@ class NotifyController extends Controller {
 
    public function checkOpen()
    {
-//      $checks = [
-//
-//         [
-//            'term_id'         => 2158,
-//            'class_number'    => 21889,
-//            'phone_number'    => getenv('BRAD_NUMBER'),
-//         ],
-//			[
-//				'term_id'			=> 2158,
-//				'class_number'		=> 20753,
-//				'phone_number'		=> getenv('BRAD_NUMBER')
-//			],
-//			[
-//				'term_id'			=> 2158,
-//				'class_number'		=> 21025,
-//				'phone_number'		=> getenv('BRAD_NUMBER')
-//			],
-//			[
-//				'term_id'			=> 2158,
-//				'class_number'		=> 20720,
-//				'phone_number'		=> getenv('MATT_NUMBER'),
-//			],
-//			[
-//				'term_id'			=> 2158,
-//				'class_number'		=> 20741,
-//				'phone_number'		=> getenv('AIDAN_NUMBER')
-//			],
-//
-//      ];
+		$terms = DB::table('terms')->select('term_id')->get();
 
-		$checks = $this->getWatchers(2158);
-
-		foreach($checks as $check)
+		foreach($terms as $term)
 		{
-			$this->doCheck($check);
-		}
+			$checks = $this->getWatchers($term->term_id);
 
+			foreach($checks as $check)
+			{
+				$this->doCheck((array)$check);
+			}
+		}
    }
 
    public function doCheck($options)
    {
       $class = DB::table(Config::get('table.active'))
-                  ->where('term_id', $options['term_id'])
-                  ->where('class_number', $options['class_number'])
+						->join('terms', 'terms.term_id', '=', Config::get('table.active') . '.term_id')
+                  ->where(Config::get('table.active') . '.term_id', $options['term_id'])
+                  ->where(Config::get('table.active') . '.class_number', $options['class_number'])
                   ->where('status', 1)
                   ->get();
 
@@ -71,16 +46,20 @@ class NotifyController extends Controller {
    {
       $twilio = Twilio::from('twilio');
 
-      $message     = 'There are ' . $class->available_seats . ' available seats!' . "\n";
-      $message    .= 'Seats Filled: ' . $class->enrollment_total . '/' . $class->capacity . "\n";
-      $message    .= 'Class: ' . $class->class_id . ' (#' . $class->class_number . ')' . "\n";
-      $message    .= 'Name: ' . $class->class_title . "\n";
-      $message    .= 'Teacher: ' . $class->instructors . "\n";
-      $message    .= 'Location: ' . $class->location . "\n";
-      $message    .= 'Days: ' . $class->days . "\n";
-      $message    .= 'Times: ' . $class->times . "\n";
-      $message    .= 'Type: ' . $class->type . "\n";
-		$message		.= 'Updated: ' . Carbon::now("PST")->format('m/d h:i A') . "\n";
+		$message = '';
+
+		$message    .= $class->enrollment_total . '/' . $class->capacity . " (" . $class->available_seats . " open)\n";
+      $message    .= $class->class_id . ' (' . $class->class_number . ')' . "\n";
+      $message    .= $class->class_title . "\n";
+      $message    .= $class->instructors . "\n";
+		$message		.= $class->term_name . "\n";
+		$message		.= "\n";
+		$message		.= Carbon::now("PST")->format('n/j g:i A') . "\n";
+
+		//$message    .= 'Location: ' . $class->location . "\n";
+      //$message    .= 'Days: ' . $class->days . "\n";
+      //$message    .= 'Times: ' . $class->times . "\n";
+      //$message    .= 'Type: ' . $class->type . "\n";
 
       return $twilio->message($number, $message);
    }

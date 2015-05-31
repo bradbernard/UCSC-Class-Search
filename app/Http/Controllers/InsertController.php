@@ -10,7 +10,12 @@ class InsertController extends Controller {
 
    public function insertTerms()
    {
-      $this->insertTerm(2158);
+      $terms = DB::table('terms')->select('term_id')->get();
+
+      foreach($terms as $term)
+      {
+         $this->insertTerm($term->term_id);
+      }
    }
 
    public function getConfig()
@@ -152,7 +157,7 @@ class InsertController extends Controller {
 
             ];
 
-            $data['hash'] = $this->getHash($data);
+            //$data['hash'] = $this->getHash($data);
 
             DB::table($tableName)->insert($data);
 
