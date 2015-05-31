@@ -121,47 +121,100 @@ class InsertController extends Controller {
       $tableName = Config::get('table.inactive');
       DB::table($tableName)->truncate();
 
-      foreach($html->find('#results_table tbody') as $tbody)
+      //foreach($html->find('#results_table tbody') as $tbody)
+      //{
+      //   foreach($tbody->find('tr') as $trow)
+      //   {
+      //      $spots = $trow->find('td');
+      //
+      //      if(count($spots) == 0)
+      //         continue;
+      //
+      //      $status = $this->getStatus($spots[7]);
+      //
+      //      $data = [
+      //
+      //         'term_id'               => $termId,
+      //
+      //         'class_number'          => htmlspecialchars_decode($spots[0]->plaintext),
+      //         'class_id'              => htmlspecialchars_decode($spots[1]->plaintext),
+      //         'class_title'           => htmlspecialchars_decode($spots[2]->plaintext),
+      //
+      //         'type'                  => htmlspecialchars_decode($spots[3]->plaintext),
+      //         'days'                  => htmlspecialchars_decode($spots[4]->plaintext),
+      //         'times'                 => htmlspecialchars_decode($spots[5]->plaintext),
+      //         'instructors'           => htmlspecialchars_decode(trim(preg_replace('/\s\s+/', ' ', $spots[6]->plaintext))),
+      //
+      //         'status'                => $status,
+      //         'capacity'              => htmlspecialchars_decode($spots[8]->plaintext),
+      //         'enrollment_total'      => htmlspecialchars_decode($spots[9]->plaintext),
+      //         'available_seats'       => htmlspecialchars_decode($spots[10]->plaintext),
+      //
+      //         'location'              => htmlspecialchars_decode($spots[11]->plaintext),
+      //
+      //         'created_at'            => \Carbon\Carbon::now(),
+      //         'updated_at'            => \Carbon\Carbon::now(),
+      //
+      //      ];
+      //
+      //      DB::table($tableName)->insert($data);
+      //
+      //   }
+      //
+      //}
+
+      $rows = $html->find('#results_table tbody tr');
+
+      foreach($rows as $trow)
       {
-         foreach($tbody->find('tr') as $trow)
+         $spots = $trow->find('td');
+
+         if(count($spots) == 0)
+            continue;
+
+         $status = $this->getStatus($spots[7]);
+
+         $data = [
+
+            'term_id'               => $termId,
+
+            'class_number'          => htmlspecialchars_decode($spots[0]->plaintext),
+            'class_id'              => htmlspecialchars_decode($spots[1]->plaintext),
+            'class_title'           => htmlspecialchars_decode($spots[2]->plaintext),
+
+            'type'                  => htmlspecialchars_decode($spots[3]->plaintext),
+            'days'                  => htmlspecialchars_decode($spots[4]->plaintext),
+            'times'                 => htmlspecialchars_decode($spots[5]->plaintext),
+            'instructors'           => htmlspecialchars_decode(trim(preg_replace('/\s\s+/', ' ', $spots[6]->plaintext))),
+
+            'status'                => $status,
+            'capacity'              => htmlspecialchars_decode($spots[8]->plaintext),
+            'enrollment_total'      => htmlspecialchars_decode($spots[9]->plaintext),
+            'available_seats'       => htmlspecialchars_decode($spots[10]->plaintext),
+
+            'location'              => htmlspecialchars_decode($spots[11]->plaintext),
+
+            'created_at'            => \Carbon\Carbon::now(),
+            'updated_at'            => \Carbon\Carbon::now(),
+
+         ];
+
+         DB::table($tableName)->insert($data);
+         
+         foreach($spots as $spot)
          {
-            $spots = $trow->find('td');
-
-            if(count($spots) == 0)
-               continue;
-
-            $status = $this->getStatus($spots[7]);
-
-            $data = [
-
-               'term_id'               => $termId,
-
-               'class_number'          => htmlspecialchars_decode($spots[0]->plaintext),
-               'class_id'              => htmlspecialchars_decode($spots[1]->plaintext),
-               'class_title'           => htmlspecialchars_decode($spots[2]->plaintext),
-
-               'type'                  => htmlspecialchars_decode($spots[3]->plaintext),
-               'days'                  => htmlspecialchars_decode($spots[4]->plaintext),
-               'times'                 => htmlspecialchars_decode($spots[5]->plaintext),
-               'instructors'           => htmlspecialchars_decode(trim(preg_replace('/\s\s+/', ' ', $spots[6]->plaintext))),
-
-               'status'                => $status,
-               'capacity'              => htmlspecialchars_decode($spots[8]->plaintext),
-               'enrollment_total'      => htmlspecialchars_decode($spots[9]->plaintext),
-               'available_seats'       => htmlspecialchars_decode($spots[10]->plaintext),
-
-               'location'              => htmlspecialchars_decode($spots[11]->plaintext),
-
-               'created_at'            => \Carbon\Carbon::now(),
-               'updated_at'            => \Carbon\Carbon::now(),
-
-            ];
-
-            DB::table($tableName)->insert($data);
-
+            $spot->clear();
+            $spot = null;
          }
 
+         $trow->clear();
+         $trow = null;
       }
+
+      $rows = null;
+
+      $html->clear();
+      $html = null;
       
       $write = [
 
@@ -202,6 +255,8 @@ class InsertController extends Controller {
       {
          $status = 2;
       }
+      
+      $tdetail->clear();
       
       return $status;
    }
