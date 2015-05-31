@@ -15,7 +15,7 @@ class AddStatusToWatchersTable extends Migration {
 		Schema::table('watchers', function(Blueprint $table)
 		{
 
-			$table->boolean('text_status')->default(0)->after('class_number');
+			$table->boolean('text_status')->default(1)->after('class_number');
 
 		});
 	}
