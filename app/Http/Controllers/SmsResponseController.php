@@ -21,9 +21,6 @@ class SmsResponseController extends Controller {
       $from = $params['From'];
       $body = $params['Body'];
 
-      $from = "+17146550347";
-      $body = "Poop";
-
       return $this->parseBody($from, $body);
    }
 
@@ -38,7 +35,7 @@ class SmsResponseController extends Controller {
 
       $twilio = Twilio::from('twilio');
       $args = explode($this->separator, $body);
-      
+
       if(count($args) == 1)
       {
          $commands = ['help', 'terms', 'list'];
