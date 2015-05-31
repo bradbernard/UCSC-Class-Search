@@ -50,7 +50,7 @@ class SmsResponseController extends Controller {
       Log::info("From: {$this->from}");
 
       $this->twilio = Twilio::from('twilio');
-      $this->args = explode($this->separator, strtolower($this->body));
+      $this->args = explode($this->separator, strtolower(trim($this->body)));
 
       if(count($this->args) == 1)
       {
@@ -157,8 +157,10 @@ class SmsResponseController extends Controller {
             }
          }
       }
-
-      return $this->errorResponse($this->twilio);
+      else
+      {
+         return $this->errorResponse();
+      }
    }
 
    private function listResult($termId = -1)
@@ -255,15 +257,24 @@ class SmsResponseController extends Controller {
       }
       else
       {
-         if($termId == '*' && $this->args[0] == 'remove')
+         if($termId == '*')
          {
-            $this->termId = '*';
+            if($this->args[0] == 'remove')
+            {
+               $this->termId = '*';
 
-            return true;
+               return true;
+            }
+            else
+            {
+               $response = $this->errorMessage("Wildcards only allowed on remove command.");
+               $response->send();
+               die();
+            }
          }
          else
          {
-            $response = $this->errorMessage("Wildcards only allowed on remove command.");
+            $response = $this->errorMessage("Invalid term ID.");
             $response->send();
             die();
          }
@@ -289,15 +300,24 @@ class SmsResponseController extends Controller {
       }
       else
       {
-         if($classNumber == '*' && $this->args[0] == 'remove')
+         if($classNumber == '*')
          {
-            $this->classNumber = '*';
+            if($this->args[0] == 'remove')
+            {
+               $this->classNumber = '*';
 
-            return true;
+               return true;
+            }
+            else
+            {
+               $response = $this->errorMessage("Wildcards only allowed on remove command.");
+               $response->send();
+               die();
+            }
          }
          else
          {
-            $response = $this->errorMessage("Wildcards only allowed on remove command.");
+            $response = $this->errorMessage("Invalid class number.");
             $response->send();
             die();
          }
@@ -323,11 +343,19 @@ class SmsResponseController extends Controller {
 
    private function removeResponse()
    {
-      DB::table('watchers')
-      ->where('phone_number', $this->from)
-      ->where('term_id', $this->termId)
-      ->where('class_number', $this->classNumber)
-      ->delete();
+      $res = DB::table('watchers')->where('phone_number', $this->from);
+
+      if($this->termId != '*')
+      {
+         $res = $res->where('term_id', $this->termId);
+      }
+
+      if($this->classNumber != '*')
+      {
+         $res = $res ->where('class_number', $this->classNumber);
+      }
+
+      $res->delete();
 
       return $this->listResponseAll();
    }
@@ -342,30 +370,34 @@ class SmsResponseController extends Controller {
       {
          if(!in_array($watch->term_id, $terms))
          {
-            $terms[] = [
-
-               'term_name' => $watch->term_name,
-               'term_id'   => $watch->term_id,
-
-            ];
+            $terms[$watch->term_id] = $watch->term_name;
          }
       }
 
       $twiml = $this->twilio->twiml(function($message) use($watchers, $terms) {
 
-         $responseBody  = "Watching:\n";
+         $responseBody = '';
 
-         foreach($terms as $term)
+         if(count($terms) > 0)
          {
-            $responseBody .= '- ' . $term['term_name'] . ' (' . $term['term_id'] . ')' . "\n";
+            $responseBody  = "Watching:\n";
 
-            foreach($watchers as $watcher)
+            foreach($terms as $key => $term)
             {
-               if($term['term_id'] == $watcher->term_id)
+               $responseBody .= '- ' . $term . ' (' . $key . ')' . "\n";
+
+               foreach($watchers as $watcher)
                {
-                  $responseBody .= '-- ' . $watcher->class_id . ' (' . $watcher->class_number . ')' . "\n";
+                  if($key == $watcher->term_id)
+                  {
+                     $responseBody .= '-- ' . $watcher->class_id . ' (' . $watcher->class_number . ')' . "\n";
+                  }
                }
             }
+         }
+         else
+         {
+            $responseBody .= "You are not watching any classes in this term.";
          }
 
          $message->message($responseBody);
@@ -391,19 +423,28 @@ class SmsResponseController extends Controller {
 
       $twiml = $this->twilio->twiml(function($message) use($watchers, $terms) {
 
-         $responseBody  = "Watching:\n";
+         $responseBody = '';
 
-         foreach($terms as $key => $term)
+         if(count($terms) > 0)
          {
-            $responseBody .= '- ' . $term . ' (' . $key . ')' . "\n";
+            $responseBody  .= "Watching:\n";
 
-            foreach($watchers as $watcher)
+            foreach($terms as $key => $term)
             {
-               if($key == $watcher->term_id)
+               $responseBody .= '- ' . $term . ' (' . $key . ')' . "\n";
+
+               foreach($watchers as $watcher)
                {
-                  $responseBody .= '-- ' . $watcher->class_id . ' (' . $watcher->class_number . ')' . "\n";
+                  if($key == $watcher->term_id)
+                  {
+                     $responseBody .= '-- ' . $watcher->class_id . ' (' . $watcher->class_number . ')' . "\n";
+                  }
                }
             }
+         }
+         else
+         {
+            $responseBody .= 'You are not watching any classes.';
          }
 
          $message->message($responseBody);
@@ -438,9 +479,9 @@ class SmsResponseController extends Controller {
       $twiml = $this->twilio->twiml(function($message) {
 
          $responseBody  = "Commands:\n";
-         $responseBody .= "- remove {term_id} {class_num}\n";
+         $responseBody .= "- remove {term_id | *} [class_num | *]\n";
          $responseBody .= "- add {term_id} {class_num}\n";
-         $responseBody .= "- list {term_id}\n";
+         $responseBody .= "- list [term_id]\n";
          $responseBody .= "- terms\n";
          $responseBody .= "- list\n";
          $responseBody .= "- help\n";
