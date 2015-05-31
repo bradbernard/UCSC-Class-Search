@@ -33,12 +33,14 @@ class SmsResponseController extends Controller {
       //terms --> Shows all terms
       //help --> shows all commands
 
+      Log::info("From: $from");
+
       $twilio = Twilio::from('twilio');
-      $args = explode($this->separator, $body);
+      $args = explode($this->separator, strtolower($body));
 
       if(count($args) == 1)
       {
-         $commands = ['help', 'terms', 'list'];
+         $commands = ['info', 'terms', 'list'];
 
          if(!in_array($args[0], $commands))
          {
@@ -46,7 +48,7 @@ class SmsResponseController extends Controller {
          }
          else
          {
-            if($args[0] == 'help')
+            if($args[0] == 'info')
             {
                return $this->errorResponse($twilio);
             }
