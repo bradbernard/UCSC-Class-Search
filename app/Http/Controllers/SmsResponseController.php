@@ -24,6 +24,9 @@ class SmsResponseController extends Controller {
    private $twilio = null;
    private $from = null;
    private $body = null;
+   private $termId = null;
+   private $args = null;
+   private $classNumber = null;
 
    public function postSms()
    {
@@ -47,34 +50,79 @@ class SmsResponseController extends Controller {
       Log::info("From: {$this->from}");
 
       $this->twilio = Twilio::from('twilio');
-      $args = explode($this->separator, strtolower($this->body));
+      $this->args = explode($this->separator, strtolower($this->body));
 
-      if(count($args) == 1)
+      if(count($this->args) == 1)
       {
          $commands = ['info', 'terms', 'list'];
 
-         if(!in_array($args[0], $commands))
+         if(!in_array($this->args[0], $commands))
          {
             return $this->errorResponse();
          }
-         else
+
+         if($this->args[0] == 'info')
          {
-            if($args[0] == 'info')
+            return $this->errorResponse();
+         }
+         else if($this->args[0] == 'terms')
+         {
+            return $this->termsResponse();
+         }
+         else if($this->args[0] == 'list')
+         {
+            return $this->listResponseAll();
+         }
+
+      }
+      else if(count($this->args) == 2)
+      {
+         $commands = ['list'];
+
+         if(!in_array($this->args[0], $commands))
+         {
+            return $this->errorResponse();
+         }
+
+         if($this->args[0] == 'list')
+         {
+            if($this->validTerm())
             {
-               return $this->errorResponse();
+               return $this->listResponseTerm();
             }
-            else if($args[0] == 'terms')
+         }
+      }
+      else if(count($this->args) == 3)
+      {
+         $commands = ['add', 'remove'];
+         
+         if(!in_array($this->args[0], $commands))
+         {
+            return $this->errorResponse();
+         }
+         
+         if($this->args[0] == 'add')
+         {
+            if($this->validTerm() && $this->validClass() && !$this->watchingAlready())
             {
-               return $this->termsResponse();
+               return $this->addResponse();
             }
-            else if($args[0] == 'list')
+            else
             {
-               return $this->listResponseAll();
+               dd("WTF");
+            }
+         }
+
+         if($this->args[0] == 'remove')
+         {
+            if($this->validTerm() && $this->validClass() && $this->watchingAlready())
+            {
+               return $this->removeResponse();
             }
          }
       }
 
-      return $this->errorResponse($twilio);
+      return $this->errorResponse($this->twilio);
    }
    
    private function listResult($termId = -1)
@@ -109,13 +157,93 @@ class SmsResponseController extends Controller {
                ->get();
       }
    }
+   
+   private function watchingAlready()
+   {
+      $exists = DB::table('watchers')->select('id')
+               ->where('term_id', $this->termId)
+               ->where('class_number', $this->classNumber)
+               ->where('phone_number', $this->from)
+               ->count();
+               
+      if($exists > 0)
+      {
+         return true;
+      }
+      
+      return false;
+   }
+   
+   private function validTerm()
+   {
+      $termId = $this->args[1];
 
-   private function listResponseAll()
+      if(is_numeric($termId))
+      {
+         $exists = DB::table('terms')->select('id')->where('term_id', $termId)->count();
+
+         if($exists == 1)
+         {
+            $this->termId = $termId;
+
+            return true;
+         }
+      }
+
+      return false;
+   }
+   
+   private function validClass()
+   {
+      $classNumber = $this->args[2];
+      
+      if(is_numeric($classNumber))
+      {
+         $exists = DB::table(Config::get('table.active'))->where('class_number', $classNumber)->groupBy('class_number')->count();
+         
+         if($exists == 1)
+         {
+            $this->classNumber = $classNumber;
+            
+            return true;
+         }
+      }
+      
+      return false;
+   }
+
+   private function addResponse()
+   {
+      DB::table('watchers')->insert([
+
+         'phone_number'    => $this->from,
+         'term_id'         => $this->termId,
+         'class_number'    => $this->classNumber,
+         'created_at'      => \Carbon\Carbon::now(),
+         'updated_at'      => \Carbon\Carbon::now(),
+
+      ]);
+
+      return $this->listResponseAll();
+   }
+
+   private function removeResponse()
+   {
+      DB::table('watchers')
+      ->where('phone_number', $this->from)
+      ->where('term_id', $this->termId)
+      ->where('class_number', $this->classNumber)
+      ->delete();
+
+      return $this->listResponseAll();
+   }
+
+   private function listResponseTerm()
    {
       $terms = [];
 
-      $watchers = $this->listResult();
-      
+      $watchers = $this->listResult($this->termId);
+
       foreach($watchers as $watch)
       {
          if(!in_array($watch->term_id, $terms))
@@ -135,13 +263,51 @@ class SmsResponseController extends Controller {
 
          foreach($terms as $term)
          {
-            $responseBody .= '- ' . $term['term_name'] . ' (' . $term['term_id'] . ')' . "\n";;
+            $responseBody .= '- ' . $term['term_name'] . ' (' . $term['term_id'] . ')' . "\n";
 
             foreach($watchers as $watcher)
             {
                if($term['term_id'] == $watcher->term_id)
                {
-                  $responseBody .= ' - ' . $watcher->class_id . ' (' . $watcher->class_number . ')' . "\n";
+                  $responseBody .= '-- ' . $watcher->class_id . ' (' . $watcher->class_number . ')' . "\n";
+               }
+            }
+         }
+
+         $message->message($responseBody);
+
+      });
+      
+      return $this->makeResponse($twiml);
+   }
+
+   private function listResponseAll()
+   {
+      $terms = [];
+
+      $watchers = $this->listResult();
+      
+      foreach($watchers as $watch)
+      {
+         if(!in_array($watch->term_id, $terms))
+         {
+            $terms[$watch->term_id] = $watch->term_name;
+         }
+      }
+
+      $twiml = $this->twilio->twiml(function($message) use($watchers, $terms) {
+
+         $responseBody  = "Watching:\n";
+
+         foreach($terms as $key => $term)
+         {
+            $responseBody .= '- ' . $term . ' (' . $key . ')' . "\n";
+
+            foreach($watchers as $watcher)
+            {
+               if($key == $watcher->term_id)
+               {
+                  $responseBody .= '-- ' . $watcher->class_id . ' (' . $watcher->class_number . ')' . "\n";
                }
             }
          }
