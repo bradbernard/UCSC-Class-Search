@@ -473,12 +473,12 @@ class SmsResponseController extends Controller {
       $twiml = $this->twilio->twiml(function($message) {
 
          $responseBody  = "Commands:\n";
-         $responseBody .= "- remove {term_id | *} [class_num | *]\n";
-         $responseBody .= "- add {term_id} {class_num}\n";
-         $responseBody .= "- list [term_id]\n";
+         $responseBody .= "- remove term_id class_num\n";
+         $responseBody .= "- add term_id class_num\n";
+         $responseBody .= "- list term_id\n";
          $responseBody .= "- terms\n";
          $responseBody .= "- list\n";
-         $responseBody .= "- help\n";
+         $responseBody .= "- info\n";
 
          $message->message($responseBody);
 

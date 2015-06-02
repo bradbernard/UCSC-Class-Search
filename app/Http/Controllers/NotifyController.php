@@ -105,6 +105,12 @@ class NotifyController extends Controller {
       $message    .= $class->class_title . "\n";
       $message    .= $class->instructors . "\n";
 		$message		.= $class->term_name . ' (' . $class->term_id . ")\n";
+
+		if($class->session != null)
+		{
+			$message .= $class->session . "\n";
+		}
+
 		$message		.= Carbon::now("PST")->format('n/j g:i:s A') . "\n";
 
       $twilio->message($number, $message);
