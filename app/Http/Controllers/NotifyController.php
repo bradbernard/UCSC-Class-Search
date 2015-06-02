@@ -37,7 +37,7 @@ class NotifyController extends Controller {
 			Config::get('table.active') . '.available_seats', Config::get('table.active') . '.class_id',
 			Config::get('table.active') . '.class_number', Config::get('table.active') . '.class_title',
 			Config::get('table.active') . '.instructors', 'terms.term_name', Config::get('table.active') . '.status',
-			Config::get('table.active') . '.term_id', 'watchers.phone_number',
+			Config::get('table.active') . '.term_id', 'watchers.phone_number', Config::get('table.active') . '.session',
 
 		];
 
