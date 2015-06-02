@@ -10,12 +10,28 @@ class InsertController extends Controller {
 
    public function insertTerms()
    {
-      $terms = DB::table('terms')->select('term_id')->get();
+      $terms = DB::table('terms')->select(['term_id', 'offset', 'summer'])->get();
+      DB::table(Config::get('table.inactive'))->truncate();
 
       foreach($terms as $term)
       {
-         $this->insertTerm($term->term_id);
+         $this->insertTerm($term);
       }
+
+      $this->switchActive();
+   }
+
+   private function switchActive()
+   {
+      $write = [
+
+         'active'       => Config::get('table.inactive'),
+         'inactive'     => Config::get('table.active'),
+
+      ];
+
+      File::put(config_path() . '/table.php', "<?php \n\nreturn " . $this->var_export54($write) . ";\n");
+      Artisan::call('config:cache');
    }
 
    public function getConfig()
@@ -28,7 +44,7 @@ class InsertController extends Controller {
       ];
    }
 
-   public function insertTerm($termId)
+   public function insertTerm($term)
    {
 
       $client = new \GuzzleHttp\Client([
@@ -59,7 +75,7 @@ class InsertController extends Controller {
       $searchBody = [
 
          'action'                      => 'results',
-         'binds[:term]'                => $termId,
+         'binds[:term]'                => $term->term_id,
          'binds[:reg_status]'          => 'all',
          'binds[:catalog_nbr_op]'      => '=',
          'binds[:instr_name_op]'       => '=',
@@ -119,50 +135,6 @@ class InsertController extends Controller {
       $html->load($response->getBody());
 
       $tableName = Config::get('table.inactive');
-      DB::table($tableName)->truncate();
-
-      //foreach($html->find('#results_table tbody') as $tbody)
-      //{
-      //   foreach($tbody->find('tr') as $trow)
-      //   {
-      //      $spots = $trow->find('td');
-      //
-      //      if(count($spots) == 0)
-      //         continue;
-      //
-      //      $status = $this->getStatus($spots[7]);
-      //
-      //      $data = [
-      //
-      //         'term_id'               => $termId,
-      //
-      //         'class_number'          => htmlspecialchars_decode($spots[0]->plaintext),
-      //         'class_id'              => htmlspecialchars_decode($spots[1]->plaintext),
-      //         'class_title'           => htmlspecialchars_decode($spots[2]->plaintext),
-      //
-      //         'type'                  => htmlspecialchars_decode($spots[3]->plaintext),
-      //         'days'                  => htmlspecialchars_decode($spots[4]->plaintext),
-      //         'times'                 => htmlspecialchars_decode($spots[5]->plaintext),
-      //         'instructors'           => htmlspecialchars_decode(trim(preg_replace('/\s\s+/', ' ', $spots[6]->plaintext))),
-      //
-      //         'status'                => $status,
-      //         'capacity'              => htmlspecialchars_decode($spots[8]->plaintext),
-      //         'enrollment_total'      => htmlspecialchars_decode($spots[9]->plaintext),
-      //         'available_seats'       => htmlspecialchars_decode($spots[10]->plaintext),
-      //
-      //         'location'              => htmlspecialchars_decode($spots[11]->plaintext),
-      //
-      //         'created_at'            => \Carbon\Carbon::now(),
-      //         'updated_at'            => \Carbon\Carbon::now(),
-      //
-      //      ];
-      //
-      //      DB::table($tableName)->insert($data);
-      //
-      //   }
-      //
-      //}
-
       $rows = $html->find('#results_table tbody tr');
 
       foreach($rows as $trow)
@@ -170,34 +142,42 @@ class InsertController extends Controller {
          $spots = $trow->find('td');
 
          if(count($spots) == 0)
+         {
             continue;
+         }
 
-         $status = $this->getStatus($spots[7]);
+         $offset = $term->offset;
+         $status = $this->getStatus($spots[$offset + 7]);
 
          $data = [
 
-            'term_id'               => $termId,
+            'term_id'               => $term->term_id,
 
-            'class_number'          => htmlspecialchars_decode($spots[0]->plaintext),
-            'class_id'              => htmlspecialchars_decode($spots[1]->plaintext),
-            'class_title'           => htmlspecialchars_decode($spots[2]->plaintext),
+            'class_number'          => htmlspecialchars_decode($spots[$offset +  0]->plaintext),
+            'class_id'              => htmlspecialchars_decode($spots[$offset + 1]->plaintext),
+            'class_title'           => htmlspecialchars_decode($spots[$offset + 2]->plaintext),
 
-            'type'                  => htmlspecialchars_decode($spots[3]->plaintext),
-            'days'                  => htmlspecialchars_decode($spots[4]->plaintext),
-            'times'                 => htmlspecialchars_decode($spots[5]->plaintext),
-            'instructors'           => htmlspecialchars_decode(trim(preg_replace('/\s\s+/', ' ', $spots[6]->plaintext))),
+            'type'                  => htmlspecialchars_decode($spots[$offset + 3]->plaintext),
+            'days'                  => htmlspecialchars_decode($spots[$offset + 4]->plaintext),
+            'times'                 => htmlspecialchars_decode($spots[$offset + 5]->plaintext),
+            'instructors'           => htmlspecialchars_decode(trim(preg_replace('/\s\s+/', ' ', $spots[$offset + 6]->plaintext))),
 
             'status'                => $status,
-            'capacity'              => htmlspecialchars_decode($spots[8]->plaintext),
-            'enrollment_total'      => htmlspecialchars_decode($spots[9]->plaintext),
-            'available_seats'       => htmlspecialchars_decode($spots[10]->plaintext),
+            'capacity'              => htmlspecialchars_decode($spots[$offset + 8]->plaintext),
+            'enrollment_total'      => htmlspecialchars_decode($spots[$offset + 9]->plaintext),
+            'available_seats'       => htmlspecialchars_decode($spots[$offset + 10]->plaintext),
 
-            'location'              => htmlspecialchars_decode($spots[11]->plaintext),
+            'location'              => htmlspecialchars_decode($spots[$offset + 11]->plaintext),
 
             'created_at'            => \Carbon\Carbon::now(),
             'updated_at'            => \Carbon\Carbon::now(),
 
          ];
+         
+         if($term->summer == 1)
+         {
+            $data['session'] = htmlspecialchars_decode($spots[0]->plaintext);
+         }
 
          DB::table($tableName)->insert($data);
          
@@ -215,16 +195,10 @@ class InsertController extends Controller {
 
       $html->clear();
       $html = null;
-      
-      $write = [
 
-         'active'       => Config::get('table.inactive'),
-         'inactive'     => Config::get('table.active'),
-
-      ];
-
-      File::put(config_path() . '/table.php', "<?php \n\nreturn " . $this->var_export54($write) . ";\n");
-      Artisan::call('config:cache');
+      $client = null;
+      $resposne = null;
+      $search = null;
 
    }
 
